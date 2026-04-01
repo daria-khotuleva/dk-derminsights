@@ -5,6 +5,7 @@ Streamlit-приложение для классификации кожных н
 """
 
 import json
+import base64
 import streamlit as st
 import torch
 import torch.nn as nn
@@ -488,6 +489,14 @@ def encode_metadata(age, sex, location):
     site_idx = SITE_CATEGORIES.index(site_name) if site_name in SITE_CATEGORIES else SITE_CATEGORIES.index("unknown")
     site[site_idx] = 1.0
     return torch.tensor([age_norm] + sex_vec + site, dtype=torch.float32).unsqueeze(0)
+
+
+@st.cache_resource
+def load_author_photo():
+    photo_path = Path(__file__).parent / "author.jpg"
+    if photo_path.exists():
+        return base64.b64encode(photo_path.read_bytes()).decode()
+    return None
 
 
 @st.cache_resource
@@ -1026,13 +1035,18 @@ def main():
     tab1, tab2, tab3, tab4, tab5 = st.tabs(["👩‍⚕️ Об авторе и проекте", "📚 О заболеваниях", "🧠 О модели", "📋 Как работает анкета", "🛠 Технологии"])
 
     with tab1:
+        author_b64 = load_author_photo()
+        author_img_tag = (
+            f'<img src="data:image/jpeg;base64,{author_b64}" alt="Дарья Хотулева" '
+            if author_b64 else '<img src="" alt="Дарья Хотулева" '
+        )
         st.markdown(
             '<div class="glass-card">'
             '<div style="display:flex;gap:2rem;align-items:flex-start;flex-wrap:wrap">'
 
             # Left: photo + name
             '<div style="flex:0 0 auto;text-align:center">'
-            '<img src="app/static/author.jpg" alt="Дарья Хотулева" '
+            + author_img_tag +
             'style="width:140px;height:140px;border-radius:50%;object-fit:cover;'
             'border:3px solid rgba(108,99,255,0.4);margin:0 auto 1rem;display:block;'
             'box-shadow:0 0 20px rgba(108,99,255,0.2)">'
