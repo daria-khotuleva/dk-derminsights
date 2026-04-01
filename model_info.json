@@ -1,0 +1,42 @@
+{
+  "class_names": [
+    "akiec",
+    "bcc",
+    "bkl",
+    "df",
+    "mel",
+    "nv",
+    "scc",
+    "vasc"
+  ],
+  "class_labels_ru": {
+    "akiec": "Aktinicheskij keratoz",
+    "bcc": "Bazalnokletochnaya karcinoma",
+    "bkl": "Dobrokachestvennyj keratoz",
+    "df": "Dermatofibroma",
+    "mel": "Melanoma",
+    "nv": "Nevus",
+    "scc": "Ploskokletochnaya karcinoma",
+    "vasc": "Sosudistoe porazhenie"
+  },
+  "img_size": 224,
+  "num_classes": 8,
+  "meta_dim": 12,
+  "site_categories": [
+    "anterior torso",
+    "posterior torso",
+    "lateral torso",
+    "upper extremity",
+    "lower extremity",
+    "head/neck",
+    "palms/soles",
+    "oral/genital",
+    "unknown"
+  ],
+  "best_val_acc": 0.7767011197243755,
+  "mel_threshold": 0.2099999999999999,
+  "model_type": "multimodal",
+  "dataset": "ISIC 2019 + HAM10000 + ISIC 2020 (images + metadata)",
+  "total_images": 31331,
+  "trained_on": "RTX 4070"
+}
