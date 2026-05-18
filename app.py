@@ -1,7 +1,7 @@
 """
-Streamlit-приложение для классификации кожных новообразований.
-Современный дизайн: glassmorphism, градиенты, анимации.
-Запуск: streamlit run app.py
+Streamlit app for skin lesion classification.
+Modern design: glassmorphism, gradients, animations.
+Run: streamlit run app.py
 """
 
 import json
@@ -26,90 +26,90 @@ SCC_IDX = CLASS_NAMES.index("scc")
 
 CLASS_INFO = {
     "akiec": {
-        "name": "Актинический кератоз",
-        "risk": "Предраковое",
+        "name": "Actinic keratosis",
+        "risk": "Pre-cancerous",
         "color": "#FFA500",
         "icon": "🟠",
         "gradient": "linear-gradient(135deg, #f6d365 0%, #fda085 100%)",
-        "desc": "Предраковое состояние, вызванное длительным воздействием УФ-лучей. Может перерасти в плоскоклеточную карциному.",
+        "desc": "A pre-cancerous condition caused by prolonged UV exposure. May progress to squamous cell carcinoma.",
     },
     "bcc": {
-        "name": "Базальноклеточная карцинома",
-        "risk": "Злокачественное",
+        "name": "Basal cell carcinoma",
+        "risk": "Malignant",
         "color": "#FF4444",
         "icon": "🔴",
         "gradient": "linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)",
-        "desc": "Самый распространённый вид рака кожи. Растёт медленно, редко метастазирует, но требует лечения.",
+        "desc": "The most common type of skin cancer. Grows slowly and rarely metastasizes, but requires treatment.",
     },
     "bkl": {
-        "name": "Доброкачественный кератоз",
-        "risk": "Доброкачественное",
+        "name": "Benign keratosis",
+        "risk": "Benign",
         "color": "#44AA44",
         "icon": "🟢",
         "gradient": "linear-gradient(135deg, #11998e 0%, #38ef7d 100%)",
-        "desc": "Доброкачественное поражение (себорейный кератоз, солнечное лентиго). Как правило, не опасно.",
+        "desc": "A benign lesion (seborrheic keratosis, solar lentigo). Generally harmless.",
     },
     "df": {
-        "name": "Дерматофиброма",
-        "risk": "Доброкачественное",
+        "name": "Dermatofibroma",
+        "risk": "Benign",
         "color": "#44AA44",
         "icon": "🟢",
         "gradient": "linear-gradient(135deg, #11998e 0%, #38ef7d 100%)",
-        "desc": "Доброкачественная опухоль кожи. Обычно не требует лечения, если не вызывает дискомфорт.",
+        "desc": "A benign skin tumor. Usually requires no treatment unless it causes discomfort.",
     },
     "mel": {
-        "name": "Меланома",
-        "risk": "Злокачественное (опасно!)",
+        "name": "Melanoma",
+        "risk": "Malignant (dangerous!)",
         "color": "#FF0000",
         "icon": "🔴",
         "gradient": "linear-gradient(135deg, #eb3349 0%, #f45c43 100%)",
-        "desc": "Наиболее опасный вид рака кожи. Может быстро метастазировать. Раннее обнаружение критически важно!",
+        "desc": "The most dangerous type of skin cancer. Can metastasize rapidly. Early detection is critical!",
     },
     "nv": {
-        "name": "Невус (родинка)",
-        "risk": "Доброкачественное",
+        "name": "Nevus (mole)",
+        "risk": "Benign",
         "color": "#44AA44",
         "icon": "🟢",
         "gradient": "linear-gradient(135deg, #11998e 0%, #38ef7d 100%)",
-        "desc": "Обычная доброкачественная родинка. Большинство невусов безопасны, но за ними стоит наблюдать.",
+        "desc": "A common benign mole. Most nevi are harmless, but should still be monitored.",
     },
     "scc": {
-        "name": "Плоскоклеточная карцинома",
-        "risk": "Злокачественное",
+        "name": "Squamous cell carcinoma",
+        "risk": "Malignant",
         "color": "#FF4444",
         "icon": "🔴",
         "gradient": "linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)",
-        "desc": "Второй по распространённости рак кожи. Может метастазировать. Связан с хроническим солнечным воздействием.",
+        "desc": "The second most common skin cancer. Can metastasize. Linked to chronic sun exposure.",
     },
     "vasc": {
-        "name": "Сосудистое поражение",
-        "risk": "Доброкачественное",
+        "name": "Vascular lesion",
+        "risk": "Benign",
         "color": "#44AA44",
         "icon": "🟢",
         "gradient": "linear-gradient(135deg, #11998e 0%, #38ef7d 100%)",
-        "desc": "Ангиомы, ангиокератомы и подобные сосудистые образования. Как правило, не опасны.",
+        "desc": "Angiomas, angiokeratomas and similar vascular formations. Generally harmless.",
     },
 }
 
-BCC_LOCATIONS = ["Лицо", "Нос", "Уши", "Шея", "Голова/скальп"]
-MEL_LOCATIONS = ["Спина", "Ноги", "Руки", "Туловище"]
-AKIEC_LOCATIONS = ["Лицо", "Голова/скальп", "Руки", "Уши", "Нос"]
+BCC_LOCATIONS = ["Face", "Nose", "Ears", "Neck", "Head/scalp"]
+MEL_LOCATIONS = ["Back", "Legs", "Arms", "Torso"]
+AKIEC_LOCATIONS = ["Face", "Head/scalp", "Arms", "Ears", "Nose"]
 ALL_LOCATIONS = [
-    "Лицо", "Нос", "Уши", "Голова/скальп", "Шея",
-    "Плечи", "Руки", "Кисти рук",
-    "Грудь", "Живот", "Спина", "Туловище",
-    "Ноги", "Стопы", "Другое",
+    "Face", "Nose", "Ears", "Head/scalp", "Neck",
+    "Shoulders", "Arms", "Hands",
+    "Chest", "Abdomen", "Back", "Torso",
+    "Legs", "Feet", "Other",
 ]
 
 
 # ═══════════════════════════════════════════
-# CSS: Современный дизайн с glassmorphism
+# CSS: Modern design with glassmorphism
 # ═══════════════════════════════════════════
 CUSTOM_CSS = """
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-/* ── Глобальные стили ── */
+/* ── Global styles ── */
 html, body, [class*="css"] {
     font-family: 'Inter', sans-serif !important;
 }
@@ -118,7 +118,7 @@ html, body, [class*="css"] {
     background: linear-gradient(135deg, #0a0e27 0%, #1a1a3e 40%, #0d1b2a 100%);
 }
 
-/* ── Заголовок ── */
+/* ── Header ── */
 .main-header {
     text-align: center;
     padding: 2rem 0 1rem;
@@ -140,7 +140,7 @@ html, body, [class*="css"] {
     line-height: 1.6;
 }
 
-/* ── Glassmorphism карточки ── */
+/* ── Glassmorphism cards ── */
 .glass-card {
     background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(16px);
@@ -158,7 +158,7 @@ html, body, [class*="css"] {
     box-shadow: 0 8px 32px rgba(108, 99, 255, 0.15);
 }
 
-/* ── Результат диагностики ── */
+/* ── Diagnosis result ── */
 .diagnosis-card {
     background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(20px);
@@ -186,7 +186,7 @@ html, body, [class*="css"] {
     margin-top: 1rem;
 }
 
-/* ── Риск-бейдж ── */
+/* ── Risk badge ── */
 .risk-badge {
     display: inline-block;
     padding: 0.35rem 1rem;
@@ -212,7 +212,7 @@ html, body, [class*="css"] {
     border: 1px solid rgba(52, 199, 89, 0.3);
 }
 
-/* ── Прогресс-бары вероятностей ── */
+/* ── Probability progress bars ── */
 .prob-row {
     display: flex;
     align-items: center;
@@ -244,7 +244,7 @@ html, body, [class*="css"] {
     color: #ccd6f6;
 }
 
-/* ── Профиль риска ── */
+/* ── Risk profile ── */
 .risk-meter {
     display: flex;
     align-items: center;
@@ -274,7 +274,7 @@ html, body, [class*="css"] {
     font-weight: 600;
 }
 
-/* ── Предупреждение (alert) ── */
+/* ── Alerts ── */
 .alert-danger {
     background: rgba(255, 59, 48, 0.08);
     border: 1px solid rgba(255, 59, 48, 0.2);
@@ -339,7 +339,7 @@ section[data-testid="stSidebar"] .stSelectbox label {
     border: 1px solid rgba(255, 255, 255, 0.06) !important;
 }
 
-/* ── Фототип кожи ── */
+/* ── Skin phototype ── */
 .skin-types {
     display: flex;
     justify-content: space-between;
@@ -366,7 +366,7 @@ section[data-testid="stSidebar"] .stSelectbox label {
     margin-top: 4px;
 }
 
-/* ── Анимации ── */
+/* ── Animations ── */
 @keyframes fadeInDown {
     from { opacity: 0; transform: translateY(-20px); }
     to { opacity: 1; transform: translateY(0); }
@@ -397,7 +397,7 @@ section[data-testid="stSidebar"] .stSelectbox label {
     margin-bottom: 1.5rem;
 }
 
-/* ── Скрыть стандартные элементы Streamlit ── */
+/* ── Hide Streamlit default elements ── */
 #MainMenu {visibility: hidden;}
 footer {visibility: hidden;}
 header {visibility: hidden;}
@@ -433,15 +433,15 @@ SITE_CATEGORIES = [
 NUM_SITES = len(SITE_CATEGORIES)
 META_DIM = 1 + 2 + NUM_SITES  # age + sex(2) + site(9) = 12
 
-# Маппинг локализаций из анкеты → ISIC site categories
+# Mapping from questionnaire locations → ISIC site categories
 LOCATION_TO_SITE = {
-    "Лицо": "head/neck", "Нос": "head/neck", "Уши": "head/neck",
-    "Голова/скальп": "head/neck", "Шея": "head/neck",
-    "Плечи": "upper extremity", "Руки": "upper extremity", "Кисти рук": "upper extremity",
-    "Грудь": "anterior torso", "Живот": "anterior torso",
-    "Спина": "posterior torso", "Туловище": "anterior torso",
-    "Ноги": "lower extremity", "Стопы": "palms/soles",
-    "Другое": "unknown",
+    "Face": "head/neck", "Nose": "head/neck", "Ears": "head/neck",
+    "Head/scalp": "head/neck", "Neck": "head/neck",
+    "Shoulders": "upper extremity", "Arms": "upper extremity", "Hands": "upper extremity",
+    "Chest": "anterior torso", "Abdomen": "anterior torso",
+    "Back": "posterior torso", "Torso": "anterior torso",
+    "Legs": "lower extremity", "Feet": "palms/soles",
+    "Other": "unknown",
 }
 
 
@@ -481,9 +481,9 @@ class MultimodalDermModel(nn.Module):
 
 
 def encode_metadata(age, sex, location):
-    """Кодирует данные из анкеты в вектор для модели."""
+    """Encodes questionnaire data into a feature vector for the model."""
     age_norm = float(age) / 85.0
-    sex_vec = [1.0, 0.0] if sex == "Мужской" else [0.0, 1.0]
+    sex_vec = [1.0, 0.0] if sex == "Male" else [0.0, 1.0]
     site = [0.0] * NUM_SITES
     site_name = LOCATION_TO_SITE.get(location, "unknown")
     site_idx = SITE_CATEGORIES.index(site_name) if site_name in SITE_CATEGORIES else SITE_CATEGORIES.index("unknown")
@@ -504,7 +504,7 @@ def load_model():
     model = MultimodalDermModel(NUM_CLASSES, META_DIM)
     model_path = MODEL_DIR / "best_model.pth"
     if not model_path.exists():
-        st.error("Модель не найдена! Запустите: python3 02_train.py")
+        st.error("Model not found! Run: python3 02_train.py")
         st.stop()
     model.load_state_dict(torch.load(model_path, map_location="cpu"))
     model.eval()
@@ -534,7 +534,7 @@ def compute_risk_factors(age, sex, location, sunburn_history,
     elif age < 30:
         mel_risk *= 0.8; bcc_risk *= 0.7
 
-    if sex == "Мужской":
+    if sex == "Male":
         mel_risk *= 1.1; bcc_risk *= 1.15
 
     if location in BCC_LOCATIONS:
@@ -544,29 +544,29 @@ def compute_risk_factors(age, sex, location, sunburn_history,
     if location in MEL_LOCATIONS:
         mel_risk *= 1.15
 
-    if sunburn_history == "Часто (5+ сильных ожогов)":
+    if sunburn_history == "Often (5+ severe burns)":
         mel_risk *= 1.5; bcc_risk *= 1.4; akiec_risk *= 1.4
-    elif sunburn_history == "Иногда (2-4 ожога)":
+    elif sunburn_history == "Sometimes (2-4 burns)":
         mel_risk *= 1.25; bcc_risk *= 1.2; akiec_risk *= 1.2
 
-    if tanning_bed == "Да, регулярно":
+    if tanning_bed == "Yes, regularly":
         mel_risk *= 1.6; bcc_risk *= 1.3
-    elif tanning_bed == "Да, иногда":
+    elif tanning_bed == "Yes, occasionally":
         mel_risk *= 1.3; bcc_risk *= 1.15
 
-    if sun_exposure == "Много (работа на улице / загораю каждый день)":
+    if sun_exposure == "High (outdoor work / daily tanning)":
         bcc_risk *= 1.4; akiec_risk *= 1.5; mel_risk *= 1.2
-    elif sun_exposure == "Умеренно":
+    elif sun_exposure == "Moderate":
         bcc_risk *= 1.1; akiec_risk *= 1.15
 
-    if family_history == "Да, меланома у близких родственников":
+    if family_history == "Yes, melanoma in close relatives":
         mel_risk *= 1.8
-    elif family_history == "Да, другой рак кожи":
+    elif family_history == "Yes, other skin cancer":
         mel_risk *= 1.3; bcc_risk *= 1.3
 
-    if mole_count == "Много (50+)":
+    if mole_count == "Many (50+)":
         mel_risk *= 1.5
-    elif mole_count == "Среднее (20-50)":
+    elif mole_count == "Average (20-50)":
         mel_risk *= 1.2
 
     if skin_type.startswith("I —"):
@@ -576,9 +576,9 @@ def compute_risk_factors(age, sex, location, sunburn_history,
     elif skin_type.startswith("III —"):
         mel_risk *= 1.1
 
-    if lesion_changed == "Да, быстро растёт / меняет цвет / форму":
+    if lesion_changed == "Yes, growing fast / changing color or shape":
         mel_risk *= 1.6
-    elif lesion_changed == "Да, немного изменилось":
+    elif lesion_changed == "Yes, slight changes":
         mel_risk *= 1.2
 
     return {MEL_IDX: mel_risk, BCC_IDX: bcc_risk, AKIEC_IDX: akiec_risk}
@@ -597,7 +597,7 @@ def predict(model, image, mel_threshold, risk_factors, age, sex, location):
         output = model(img_tensor, meta_tensor)
         probs = torch.softmax(output, dim=1)[0].numpy()
 
-    # Дополнительная коррекция по факторам анкеты (солярий, генетика и т.д.)
+    # Additional adjustment based on questionnaire factors (tanning bed, genetics, etc.)
     adjusted_probs = probs.copy()
     for class_idx, multiplier in risk_factors.items():
         adjusted_probs[class_idx] *= multiplier
@@ -615,8 +615,8 @@ def predict(model, image, mel_threshold, risk_factors, age, sex, location):
 
 def generate_gradcam(model, image, target_class, age, sex, location):
     """
-    Grad-CAM: показывает, на какие области изображения смотрит модель.
-    Возвращает PIL Image с наложенной тепловой картой.
+    Grad-CAM: shows which regions of the image the model focuses on.
+    Returns a PIL Image with the heatmap overlaid.
     """
     import matplotlib.cm as cm
 
@@ -628,7 +628,7 @@ def generate_gradcam(model, image, target_class, age, sex, location):
     img_tensor = transform(image).unsqueeze(0)
     meta_tensor = encode_metadata(age, sex, location)
 
-    # Hook для захвата активаций и градиентов последнего conv-слоя
+    # Hooks to capture activations and gradients of the last conv layer
     activations = {}
     gradients = {}
 
@@ -638,7 +638,7 @@ def generate_gradcam(model, image, target_class, age, sex, location):
     def backward_hook(module, grad_input, grad_output):
         gradients["value"] = grad_output[0].detach()
 
-    # Регистрируем hooks на последний блок features
+    # Register hooks on the last features block
     target_layer = model.image_features[-1]
     fh = target_layer.register_forward_hook(forward_hook)
     bh = target_layer.register_full_backward_hook(backward_hook)
@@ -648,41 +648,41 @@ def generate_gradcam(model, image, target_class, age, sex, location):
     img_tensor.requires_grad_(True)
     output = model(img_tensor, meta_tensor)
 
-    # Backward pass для целевого класса
+    # Backward pass for the target class
     model.zero_grad()
     output[0, target_class].backward()
 
     # Grad-CAM
     grads = gradients["value"]       # (1, C, H, W)
     acts = activations["value"]      # (1, C, H, W)
-    weights = grads.mean(dim=[2, 3], keepdim=True)  # Global Average Pooling градиентов
-    cam = (weights * acts).sum(dim=1, keepdim=True)  # Взвешенная сумма
-    cam = torch.relu(cam)            # ReLU — только положительное влияние
+    weights = grads.mean(dim=[2, 3], keepdim=True)  # Global Average Pooling of gradients
+    cam = (weights * acts).sum(dim=1, keepdim=True)  # Weighted sum
+    cam = torch.relu(cam)            # ReLU — keep only positive contributions
     cam = cam.squeeze().numpy()
 
-    # Нормализация 0-1
+    # Normalize to 0-1
     if cam.max() > 0:
         cam = (cam - cam.min()) / (cam.max() - cam.min())
 
-    # Resize до размера изображения
+    # Resize to image dimensions
     from PIL import Image as PILImage
     cam_resized = np.array(PILImage.fromarray((cam * 255).astype(np.uint8)).resize(
         (IMG_SIZE, IMG_SIZE), PILImage.BILINEAR
     )) / 255.0
 
-    # Наложение heatmap на изображение
+    # Overlay heatmap on image
     img_resized = image.resize((IMG_SIZE, IMG_SIZE))
     img_array = np.array(img_resized) / 255.0
 
     # Colormap: jet
     heatmap = cm.jet(cam_resized)[:, :, :3]
 
-    # Blend: 60% изображение + 40% heatmap
+    # Blend: 60% image + 40% heatmap
     overlay = (img_array * 0.6 + heatmap * 0.4)
     overlay = np.clip(overlay, 0, 1)
     overlay_img = PILImage.fromarray((overlay * 255).astype(np.uint8))
 
-    # Удаляем hooks
+    # Remove hooks
     fh.remove()
     bh.remove()
 
@@ -691,15 +691,15 @@ def generate_gradcam(model, image, target_class, age, sex, location):
 
 def format_risk_level(risk):
     if risk >= 2.5:
-        return "Очень высокий", "#FF3B30"
+        return "Very high", "#FF3B30"
     elif risk >= 1.8:
-        return "Высокий", "#FF6B6B"
+        return "High", "#FF6B6B"
     elif risk >= 1.3:
-        return "Повышенный", "#FFA500"
+        return "Elevated", "#FFA500"
     elif risk >= 1.0:
-        return "Средний", "#8892b0"
+        return "Average", "#8892b0"
     else:
-        return "Ниже среднего", "#34C759"
+        return "Below average", "#34C759"
 
 
 def get_risk_badge_class(top_class):
@@ -712,7 +712,7 @@ def get_risk_badge_class(top_class):
 
 
 def render_prob_bars(adj_probs, raw_probs):
-    """Рендерит красивые прогресс-бары для каждого класса."""
+    """Renders nice progress bars for each class."""
     sorted_indices = np.argsort(adj_probs)[::-1]
     html = ""
     colors = {
@@ -758,51 +758,51 @@ def main():
     model = load_model()
     base_mel_threshold = load_mel_threshold()
 
-    # ═══ Sidebar: клиническая анкета ═══
+    # ═══ Sidebar: clinical questionnaire ═══
     with st.sidebar:
-        st.markdown("### 📋 Клиническая анкета")
-        st.caption("Заполните для точной оценки рисков")
+        st.markdown("### 📋 Clinical questionnaire")
+        st.caption("Fill in for accurate risk assessment")
 
         st.markdown("---")
-        st.markdown("**Основные данные**")
-        sex = st.radio("Пол", ["Мужской", "Женский"], horizontal=True)
+        st.markdown("**Basic information**")
+        sex = st.radio("Sex", ["Male", "Female"], horizontal=True)
         age_range = st.radio(
-            "Возраст",
-            ["До 18 лет", "18–30 лет", "30–40 лет", "40–50 лет",
-             "50–60 лет", "60–70 лет", "70+ лет"],
+            "Age",
+            ["Under 18", "18–30", "30–40", "40–50",
+             "50–60", "60–70", "70+"],
         )
         age_map = {
-            "До 18 лет": 15, "18–30 лет": 25, "30–40 лет": 35,
-            "40–50 лет": 45, "50–60 лет": 55, "60–70 лет": 65, "70+ лет": 75,
+            "Under 18": 15, "18–30": 25, "30–40": 35,
+            "40–50": 45, "50–60": 55, "60–70": 65, "70+": 75,
         }
         age = age_map[age_range]
-        location = st.selectbox("Локализация образования", ALL_LOCATIONS)
+        location = st.selectbox("Lesion location", ALL_LOCATIONS)
 
         st.markdown("---")
-        st.markdown("**Солнце и УФ-излучение**")
+        st.markdown("**Sun and UV exposure**")
         sunburn_history = st.select_slider(
-            "Солнечные ожоги в прошлом",
-            options=["Редко или никогда", "Иногда (2-4 ожога)", "Часто (5+ сильных ожогов)"],
+            "Past sunburns",
+            options=["Rarely or never", "Sometimes (2-4 burns)", "Often (5+ severe burns)"],
         )
-        tanning_bed = st.radio("Солярий", ["Нет", "Да, иногда", "Да, регулярно"])
+        tanning_bed = st.radio("Tanning bed use", ["No", "Yes, occasionally", "Yes, regularly"])
         sun_exposure = st.radio(
-            "Пребывание на солнце",
-            ["Мало (в основном в помещении)", "Умеренно",
-             "Много (работа на улице / загораю каждый день)"],
+            "Sun exposure",
+            ["Low (mostly indoors)", "Moderate",
+             "High (outdoor work / daily tanning)"],
         )
 
         st.markdown("---")
-        st.markdown("**Генетика и кожа**")
+        st.markdown("**Genetics and skin**")
         family_history = st.radio(
-            "Рак кожи у родственников",
-            ["Нет / не знаю", "Да, другой рак кожи", "Да, меланома у близких родственников"],
+            "Skin cancer in relatives",
+            ["No / don't know", "Yes, other skin cancer", "Yes, melanoma in close relatives"],
         )
         mole_count = st.radio(
-            "Количество родинок",
-            ["Мало (менее 20)", "Среднее (20-50)", "Много (50+)"],
+            "Number of moles",
+            ["Few (fewer than 20)", "Average (20-50)", "Many (50+)"],
         )
 
-        st.markdown("**Фототип кожи**")
+        st.markdown("**Skin phototype**")
         st.markdown(
             '<div class="skin-types">'
             '<div><div class="skin-circle" style="background:#FDEBD0"></div><div class="skin-label">I</div></div>'
@@ -815,23 +815,23 @@ def main():
             unsafe_allow_html=True,
         )
         skin_type = st.radio(
-            "Ваш фототип",
+            "Your phototype",
             [
-                "I — очень светлая, всегда обгорает",
-                "II — светлая, легко обгорает",
-                "III — средняя, иногда обгорает",
-                "IV — смуглая, редко обгорает",
-                "V-VI — тёмная, почти не обгорает",
+                "I — very fair, always burns",
+                "II — fair, burns easily",
+                "III — medium, sometimes burns",
+                "IV — olive, rarely burns",
+                "V-VI — dark, almost never burns",
             ],
             label_visibility="collapsed",
         )
 
         st.markdown("---")
-        st.markdown("**Образование**")
+        st.markdown("**Lesion**")
         lesion_changed = st.radio(
-            "Изменилось ли образование?",
-            ["Нет, стабильное", "Да, немного изменилось",
-             "Да, быстро растёт / меняет цвет / форму"],
+            "Has the lesion changed?",
+            ["No, stable", "Yes, slight changes",
+             "Yes, growing fast / changing color or shape"],
         )
 
     risk_factors = compute_risk_factors(
@@ -844,17 +844,17 @@ def main():
     st.markdown(
         '<div class="main-header">'
         '<h1>DK DermInsights</h1>'
-        '<p>Интеллектуальная система анализа кожных новообразований.<br>'
-        'Загрузите фото и заполните анкету — модель оценит изображение '
-        'с учётом ваших индивидуальных факторов риска.</p>'
+        '<p>Intelligent system for analyzing skin lesions.<br>'
+        'Upload a photo and fill in the questionnaire — the model will assess the image '
+        'taking your individual risk factors into account.</p>'
         '</div>',
         unsafe_allow_html=True,
     )
 
     st.markdown(
         '<div class="disclaimer">'
-        '⚠️ Это учебный проект, не медицинский инструмент. '
-        'Для постановки диагноза обратитесь к дерматологу.'
+        '⚠️ This is an educational project, not a medical device. '
+        'For a diagnosis, please consult a dermatologist.'
         '</div>',
         unsafe_allow_html=True,
     )
@@ -864,9 +864,9 @@ def main():
 
     with col1:
         st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-        st.markdown("#### 📷 Загрузите дерматоскопическое изображение")
+        st.markdown("#### 📷 Upload a dermoscopic image")
         uploaded_file = st.file_uploader(
-            "Перетащите файл или нажмите для выбора",
+            "Drag and drop a file or click to select",
             type=["jpg", "jpeg", "png"],
             label_visibility="collapsed",
         )
@@ -875,10 +875,10 @@ def main():
             st.image(image, use_container_width=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
-        # Профиль риска
+        # Risk profile
         st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-        st.markdown("#### 📊 Ваш профиль риска")
-        risk_labels = {MEL_IDX: "Меланома", BCC_IDX: "Баз. карцинома", AKIEC_IDX: "Акт. кератоз"}
+        st.markdown("#### 📊 Your risk profile")
+        risk_labels = {MEL_IDX: "Melanoma", BCC_IDX: "Basal cell carc.", AKIEC_IDX: "Actinic keratosis"}
         risk_html = ""
         for idx, name in risk_labels.items():
             risk = risk_factors[idx]
@@ -893,16 +893,16 @@ def main():
 
         warnings = []
         if risk_factors[MEL_IDX] >= 1.5:
-            warnings.append("Повышенный риск меланомы по анамнезу")
+            warnings.append("Elevated melanoma risk based on history")
         if risk_factors[BCC_IDX] >= 1.5:
-            warnings.append("Повышенный риск базальноклеточной карциномы")
-        if lesion_changed == "Да, быстро растёт / меняет цвет / форму":
-            warnings.append("Быстрое изменение образования — тревожный признак")
-        if family_history == "Да, меланома у близких родственников":
-            warnings.append("Семейная история меланомы — значимый фактор")
+            warnings.append("Elevated basal cell carcinoma risk")
+        if lesion_changed == "Yes, growing fast / changing color or shape":
+            warnings.append("Rapid lesion change — a warning sign")
+        if family_history == "Yes, melanoma in close relatives":
+            warnings.append("Family history of melanoma — a significant factor")
 
         if warnings:
-            warn_html = '<div class="alert-warning"><strong>На что обратить внимание:</strong><ul style="margin:0.5rem 0 0;padding-left:1.2rem">'
+            warn_html = '<div class="alert-warning"><strong>Points to watch:</strong><ul style="margin:0.5rem 0 0;padding-left:1.2rem">'
             for w in warnings:
                 warn_html += f"<li style='margin-bottom:0.3rem;color:#ccd6f6;font-size:0.9rem'>{w}</li>"
             warn_html += "</ul></div>"
@@ -916,17 +916,17 @@ def main():
                 model, image, base_mel_threshold, risk_factors, age, sex, location
             )
 
-            # Всегда показываем класс с наибольшей вероятностью
+            # Always show the class with the highest probability
             argmax_idx = int(np.argmax(adj_probs))
             top_class = CLASS_NAMES[argmax_idx]
             info = CLASS_INFO[top_class]
             badge_class = get_risk_badge_class(top_class)
 
-            # Проверяем порог меланомы для предупреждения
+            # Check melanoma threshold for the warning
             mel_prob = adj_probs[MEL_IDX]
             mel_threshold_triggered = mel_prob >= eff_threshold and argmax_idx != MEL_IDX
 
-            # Diagnosis card — всегда реальный топ-класс
+            # Diagnosis card — always shows the actual top class
             st.markdown(
                 f'<div class="diagnosis-card">'
                 f'<div class="diagnosis-title">{info["icon"]} {info["name"]}</div>'
@@ -940,77 +940,77 @@ def main():
                 unsafe_allow_html=True,
             )
 
-            # Предупреждение о меланоме — отдельный блок
+            # Melanoma warning — separate block
             if mel_threshold_triggered:
                 st.markdown(
                     f'<div class="alert-danger" style="margin-top:1rem">'
-                    f'<strong>⚠️ Риск меланомы: {mel_prob*100:.1f}%</strong><br>'
-                    f'Хотя наиболее вероятный диагноз — {info["name"]}, '
-                    f'вероятность меланомы повышена с учётом ваших факторов риска. '
-                    f'<strong>Рекомендуется обследование у дерматолога</strong> для исключения меланомы.'
+                    f'<strong>⚠️ Melanoma risk: {mel_prob*100:.1f}%</strong><br>'
+                    f'Although the most likely diagnosis is {info["name"]}, '
+                    f'the probability of melanoma is elevated given your risk factors. '
+                    f'<strong>A dermatologist consultation is recommended</strong> to rule out melanoma.'
                     f'</div>',
                     unsafe_allow_html=True,
                 )
 
-            # Grad-CAM визуализация
+            # Grad-CAM visualization
             st.markdown('<div class="glass-card" style="margin-top:1rem">', unsafe_allow_html=True)
-            st.markdown("#### 🔍 Grad-CAM: на что смотрит модель")
+            st.markdown("#### 🔍 Grad-CAM: what the model looks at")
             st.markdown(
                 '<div style="color:#8892b0;font-size:0.85rem;margin-bottom:0.8rem">'
-                'Тепловая карта показывает области, которые повлияли на решение модели. '
-                '<span style="color:#FF3B30">Красные зоны</span> — максимальное внимание, '
-                '<span style="color:#3B82F6">синие</span> — минимальное.</div>',
+                'The heatmap shows the regions that influenced the model\'s decision. '
+                '<span style="color:#FF3B30">Red zones</span> — maximum attention, '
+                '<span style="color:#3B82F6">blue</span> — minimum.</div>',
                 unsafe_allow_html=True,
             )
             try:
                 gradcam_img = generate_gradcam(model, image, argmax_idx, age, sex, location)
                 gcol1, gcol2 = st.columns(2)
                 with gcol1:
-                    st.image(image.resize((IMG_SIZE, IMG_SIZE)), caption="Оригинал", use_container_width=True)
+                    st.image(image.resize((IMG_SIZE, IMG_SIZE)), caption="Original", use_container_width=True)
                 with gcol2:
                     st.image(gradcam_img, caption=f"Grad-CAM: {info['name']}", use_container_width=True)
             except Exception as e:
-                st.markdown(f'<div style="color:#8892b0">Grad-CAM недоступен: {e}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div style="color:#8892b0">Grad-CAM unavailable: {e}</div>', unsafe_allow_html=True)
             st.markdown('</div>', unsafe_allow_html=True)
 
             # Probability bars
             st.markdown('<div class="glass-card" style="margin-top:1rem">', unsafe_allow_html=True)
-            st.markdown("#### Вероятности всех классов")
+            st.markdown("#### Probabilities for all classes")
             st.markdown(render_prob_bars(adj_probs, raw_probs), unsafe_allow_html=True)
             st.markdown('</div>', unsafe_allow_html=True)
 
             # Recommendation
             st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-            st.markdown("#### 💡 Рекомендация")
+            st.markdown("#### 💡 Recommendation")
             if top_class == "mel":
                 st.markdown(
                     '<div class="alert-danger">'
-                    '🔴 <strong>Обратитесь к дерматологу как можно скорее.</strong><br>'
-                    'Меланома — серьёзное заболевание. Раннее обнаружение спасает жизни.'
+                    '🔴 <strong>See a dermatologist as soon as possible.</strong><br>'
+                    'Melanoma is a serious condition. Early detection saves lives.'
                     '</div>',
                     unsafe_allow_html=True,
                 )
             elif top_class in ("bcc", "akiec", "scc"):
                 st.markdown(
                     '<div class="alert-warning">'
-                    '🟠 <strong>Рекомендуется визит к дерматологу.</strong><br>'
-                    f'{info["name"]} хорошо поддаётся лечению при раннем обнаружении.'
+                    '🟠 <strong>A dermatologist visit is recommended.</strong><br>'
+                    f'{info["name"]} responds well to treatment when detected early.'
                     '</div>',
                     unsafe_allow_html=True,
                 )
             elif risk_factors[MEL_IDX] >= 1.5 or risk_factors[BCC_IDX] >= 1.5:
                 st.markdown(
                     '<div class="alert-info">'
-                    '🟡 Образование выглядит доброкачественным, но ваш профиль риска повышен. '
-                    'Рекомендуется регулярный осмотр у дерматолога.'
+                    '🟡 The lesion appears benign, but your risk profile is elevated. '
+                    'Regular dermatologist check-ups are recommended.'
                     '</div>',
                     unsafe_allow_html=True,
                 )
             else:
                 st.markdown(
                     '<div class="alert-success">'
-                    '🟢 Образование, вероятнее всего, доброкачественное. '
-                    'Тем не менее, при любых изменениях обратитесь к врачу.'
+                    '🟢 The lesion is most likely benign. '
+                    'Still, see a doctor if you notice any changes.'
                     '</div>',
                     unsafe_allow_html=True,
                 )
@@ -1021,24 +1021,24 @@ def main():
                 '<div class="glass-card" style="text-align:center;padding:4rem 2rem">'
                 '<div style="font-size:4rem;margin-bottom:1rem">🔬</div>'
                 '<div style="font-size:1.2rem;color:#8892b0;margin-bottom:0.5rem">'
-                'Загрузите изображение для анализа</div>'
+                'Upload an image for analysis</div>'
                 '<div style="font-size:0.9rem;color:#5a6178">'
-                'Поддерживаемые форматы: JPG, PNG<br>'
-                'Рекомендуется: дерматоскопические снимки</div>'
+                'Supported formats: JPG, PNG<br>'
+                'Recommended: dermoscopic images</div>'
                 '</div>',
                 unsafe_allow_html=True,
             )
 
-    # ═══ Нижняя секция: информация ═══
+    # ═══ Bottom section: information ═══
     st.markdown("<br>", unsafe_allow_html=True)
 
-    tab1, tab2, tab3, tab4, tab5 = st.tabs(["👩‍⚕️ Об авторе и проекте", "📚 О заболеваниях", "🧠 О модели", "📋 Как работает анкета", "🛠 Технологии"])
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(["👩‍⚕️ About the author & project", "📚 About the conditions", "🧠 About the model", "📋 How the questionnaire works", "🛠 Technologies"])
 
     with tab1:
         author_b64 = load_author_photo()
         author_img_tag = (
-            f'<img src="data:image/jpeg;base64,{author_b64}" alt="Дарья Хотулева" '
-            if author_b64 else '<img src="" alt="Дарья Хотулева" '
+            f'<img src="data:image/jpeg;base64,{author_b64}" alt="Daria Khotuleva" '
+            if author_b64 else '<img src="" alt="Daria Khotuleva" '
         )
         st.markdown(
             '<div class="glass-card">'
@@ -1050,37 +1050,38 @@ def main():
             'style="width:140px;height:140px;border-radius:50%;object-fit:cover;'
             'border:3px solid rgba(108,99,255,0.4);margin:0 auto 1rem;display:block;'
             'box-shadow:0 0 20px rgba(108,99,255,0.2)">'
-            '<div style="font-size:1.2rem;font-weight:700;color:#ccd6f6">Дарья Хотулева</div>'
+            '<div style="font-size:1.2rem;font-weight:700;color:#ccd6f6">Daria Khotuleva</div>'
             '<div style="color:#6C63FF;font-size:0.85rem;font-weight:500;margin-top:0.3rem">'
-            'Врач-дерматолог &nbsp;→&nbsp; Data Scientist</div>'
+            'Dermatologist &nbsp;→&nbsp; Data Scientist</div>'
             '</div>'
 
             # Right: story
             '<div style="flex:1;min-width:280px">'
             '<div style="font-size:1.3rem;font-weight:700;color:#ccd6f6;margin-bottom:1rem">'
-            'От дерматоскопа к нейросетям</div>'
+            'From the dermatoscope to neural networks</div>'
             '<div style="color:#8892b0;line-height:1.8;font-size:0.95rem">'
 
-            'Я окончила <strong style="color:#ccd6f6">Дальневосточный государственный '
-            'медицинский университет</strong> (ДВГМУ, Хабаровск), '
-            'а ординатуру по дерматовенерологии прошла в Москве в '
-            '<strong style="color:#ccd6f6">ФГБУ ГНЦДК</strong> — одном из ведущих '
-            'дерматологических центров страны. Там же начала клиническую практику: '
-            'дерматоскопия, диагностика новообразований, работа с пациентами.<br><br>'
+            'I graduated from the <strong style="color:#ccd6f6">Far Eastern State '
+            'Medical University</strong> (FESMU, Khabarovsk), '
+            'and completed my residency in dermatovenereology in Moscow at the '
+            '<strong style="color:#ccd6f6">State Scientific Center of Dermatovenereology '
+            '(SSCDC)</strong> — one of the country\'s leading dermatology centers. '
+            'There I began my clinical practice: dermoscopy, lesion diagnostics, '
+            'and patient care.<br><br>'
 
-            'После переезда из России я решила сменить вектор карьеры, '
-            'но сохранить то, что мне всегда было важно — '
-            '<strong style="color:#ccd6f6">помогать людям</strong>. '
-            'Так я пришла в Data Science: сейчас учусь в Португалии и параллельно '
-            'осваиваю машинное обучение самостоятельно.<br><br>'
+            'After moving from Russia, I decided to change my career path '
+            'while keeping what has always mattered to me — '
+            '<strong style="color:#ccd6f6">helping people</strong>. '
+            'That\'s how I came to Data Science: I\'m now studying in Portugal '
+            'while teaching myself machine learning in parallel.<br><br>'
 
-            'Этот проект — точка пересечения моих двух профессий. '
-            'Я знаю, как выглядит меланома под дерматоскопом, знаю, что '
-            'dysplastic nevus и меланому путают даже опытные врачи, и знаю, '
-            'какие клинические факторы повышают риск. '
-            'Именно поэтому модель здесь — не просто классификатор картинок: '
-            'она учитывает <strong style="color:#ccd6f6">анамнез пациента</strong>, '
-            'как это делает дерматолог на приёме.'
+            'This project sits at the intersection of my two professions. '
+            'I know what melanoma looks like under a dermatoscope, I know that '
+            'dysplastic nevi and melanomas are confused even by experienced doctors, '
+            'and I know which clinical factors raise the risk. '
+            'That\'s why the model here is not just an image classifier: '
+            'it takes <strong style="color:#ccd6f6">patient history</strong> into account, '
+            'the way a dermatologist does at an appointment.'
             '</div>'
             '</div>'
             '</div>'
@@ -1089,23 +1090,23 @@ def main():
             '<div style="display:flex;gap:1rem;margin-top:1.5rem;flex-wrap:wrap;width:100%">'
             '<div style="flex:1;min-width:160px;background:rgba(108,99,255,0.08);'
             'border-radius:12px;padding:1rem;text-align:center">'
-            '<div style="font-size:1.5rem;font-weight:700;color:#6C63FF">ДВГМУ</div>'
-            '<div style="color:#8892b0;font-size:0.8rem;margin-top:0.3rem">Медицинское образование<br>Хабаровск</div>'
+            '<div style="font-size:1.5rem;font-weight:700;color:#6C63FF">FESMU</div>'
+            '<div style="color:#8892b0;font-size:0.8rem;margin-top:0.3rem">Medical degree<br>Khabarovsk</div>'
             '</div>'
             '<div style="flex:1;min-width:160px;background:rgba(108,99,255,0.08);'
             'border-radius:12px;padding:1rem;text-align:center">'
-            '<div style="font-size:1.5rem;font-weight:700;color:#6C63FF">ГНЦДК</div>'
-            '<div style="color:#8892b0;font-size:0.8rem;margin-top:0.3rem">Ординатура и практика<br>Москва</div>'
+            '<div style="font-size:1.5rem;font-weight:700;color:#6C63FF">SSCDC</div>'
+            '<div style="color:#8892b0;font-size:0.8rem;margin-top:0.3rem">Residency & practice<br>Moscow</div>'
             '</div>'
             '<div style="flex:1;min-width:160px;background:rgba(108,99,255,0.08);'
             'border-radius:12px;padding:1rem;text-align:center">'
             '<div style="font-size:1.5rem;font-weight:700;color:#6C63FF">DS</div>'
-            '<div style="color:#8892b0;font-size:0.8rem;margin-top:0.3rem">Data Science<br>Португалия</div>'
+            '<div style="color:#8892b0;font-size:0.8rem;margin-top:0.3rem">Data Science<br>Portugal</div>'
             '</div>'
             '<div style="flex:1;min-width:160px;background:rgba(108,99,255,0.08);'
             'border-radius:12px;padding:1rem;text-align:center">'
             '<div style="font-size:1.5rem;font-weight:700;color:#6C63FF">AI + Med</div>'
-            '<div style="color:#8892b0;font-size:0.8rem;margin-top:0.3rem">Технологии<br>для здоровья</div>'
+            '<div style="color:#8892b0;font-size:0.8rem;margin-top:0.3rem">Technology<br>for health</div>'
             '</div>'
             '</div>'
             '</div>',
@@ -1133,63 +1134,63 @@ def main():
             '<div class="glass-card">'
 
             '<div style="color:#6C63FF;font-size:1.1rem;font-weight:700;margin-bottom:1rem">'
-            'Мультимодальная архитектура</div>'
+            'Multimodal architecture</div>'
             '<div style="color:#8892b0;line-height:1.7;margin-bottom:1.5rem">'
-            'Модель работает как настоящий дерматолог — анализирует <strong style="color:#ccd6f6">'
-            'и изображение, и данные пациента</strong> одновременно. '
-            'Две ветки нейросети обрабатывают разные типы данных, '
-            'затем объединяются для финального решения.</div>'
+            'The model works like a real dermatologist — it analyzes <strong style="color:#ccd6f6">'
+            'both the image and the patient data</strong> at the same time. '
+            'Two branches of the neural network process different data types, '
+            'then merge for the final decision.</div>'
 
             '<div style="background:rgba(108,99,255,0.06);border-radius:12px;padding:1.2rem;'
             'margin-bottom:1.5rem;font-family:monospace;font-size:0.85rem;color:#ccd6f6;line-height:1.8">'
             '┌─────────────────┐ &nbsp;&nbsp;&nbsp; ┌──────────────────┐<br>'
-            '│ &nbsp; Изображение &nbsp; │ &nbsp;&nbsp;&nbsp; │ &nbsp; Метаданные &nbsp;&nbsp;&nbsp; │<br>'
+            '│ &nbsp;&nbsp;&nbsp; Image &nbsp;&nbsp;&nbsp;&nbsp; │ &nbsp;&nbsp;&nbsp; │ &nbsp;&nbsp; Metadata &nbsp;&nbsp;&nbsp;&nbsp; │<br>'
             '│ &nbsp; (224 x 224) &nbsp;&nbsp; │ &nbsp;&nbsp;&nbsp; │ age, sex, site &nbsp; │<br>'
             '└────────┬────────┘ &nbsp;&nbsp;&nbsp; └────────┬─────────┘<br>'
             '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; │ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; │<br>'
             '&nbsp; EfficientNet-B0 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MLP (12→64→32)<br>'
-            '&nbsp; (1280 признаков) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (32 признака)<br>'
+            '&nbsp; (1280 features) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (32 features)<br>'
             '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; │ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; │<br>'
             '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; └───────── Concat ─────────┘<br>'
             '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; │<br>'
-            '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Классификатор (256→8)<br>'
+            '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Classifier (256→8)<br>'
             '</div>'
 
             '<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">'
             '<div>'
-            '<div style="color:#6C63FF;font-weight:600;margin-bottom:0.3rem">Визуальная ветка</div>'
-            '<div style="color:#ccd6f6">EfficientNet-B0 (pretrained ImageNet)</div>'
+            '<div style="color:#6C63FF;font-weight:600;margin-bottom:0.3rem">Image branch</div>'
+            '<div style="color:#ccd6f6">EfficientNet-B0 (pretrained on ImageNet)</div>'
             '</div>'
             '<div>'
-            '<div style="color:#6C63FF;font-weight:600;margin-bottom:0.3rem">Ветка метаданных</div>'
-            '<div style="color:#ccd6f6">MLP: возраст + пол + локализация (12 признаков)</div>'
+            '<div style="color:#6C63FF;font-weight:600;margin-bottom:0.3rem">Metadata branch</div>'
+            '<div style="color:#ccd6f6">MLP: age + sex + location (12 features)</div>'
             '</div>'
             '<div>'
-            '<div style="color:#6C63FF;font-weight:600;margin-bottom:0.3rem">Датасет</div>'
-            '<div style="color:#ccd6f6">ISIC 2019 + HAM10000 + ISIC 2020 — 31 331 дерматоскопическое изображение + метаданные пациентов</div>'
+            '<div style="color:#6C63FF;font-weight:600;margin-bottom:0.3rem">Dataset</div>'
+            '<div style="color:#ccd6f6">ISIC 2019 + HAM10000 + ISIC 2020 — 31,331 dermoscopic images + patient metadata</div>'
             '</div>'
             '<div>'
-            '<div style="color:#6C63FF;font-weight:600;margin-bottom:0.3rem">Классы</div>'
-            '<div style="color:#ccd6f6">8 типов новообразований (включая SCC)</div>'
+            '<div style="color:#6C63FF;font-weight:600;margin-bottom:0.3rem">Classes</div>'
+            '<div style="color:#ccd6f6">8 lesion types (including SCC)</div>'
             '</div>'
             '<div>'
             '<div style="color:#6C63FF;font-weight:600;margin-bottom:0.3rem">Accuracy</div>'
-            '<div style="color:#ccd6f6">77.7% (argmax) / 75.8% (с порогом меланомы)</div>'
+            '<div style="color:#ccd6f6">77.7% (argmax) / 75.8% (with melanoma threshold)</div>'
             '</div>'
             '<div>'
             '<div style="color:#6C63FF;font-weight:600;margin-bottom:0.3rem">Melanoma Recall</div>'
-            '<div style="color:#ccd6f6">78.1% (с threshold tuning, порог 0.21)</div>'
+            '<div style="color:#ccd6f6">78.1% (with threshold tuning, threshold 0.21)</div>'
             '</div>'
             '</div>'
 
             '<div style="margin-top:1.5rem;color:#8892b0;line-height:1.7">'
-            '<strong style="color:#6C63FF">Этапы обучения:</strong><br>'
-            '1. Transfer learning — EfficientNet-B0 предобучен на ImageNet (14 млн фото)<br>'
-            '2. Дообучение на ISIC 2019 + HAM10000 + ISIC 2020 — 31 331 дерматоскопическое фото из клиник Австрии, Австралии, Испании и США<br>'
-            '3. Мультимодальное обучение — к визуальным признакам добавлены возраст, пол и локализация образования<br>'
-            '4. Обучение на GPU (NVIDIA RTX 4070) — 30 эпох, batch size 64, mixed precision (AMP)<br>'
-            '5. Threshold tuning — подбор порога чувствительности для меланомы (приоритет: не пропустить опасный диагноз)<br>'
-            '6. Постобработка по анкете — дополнительная коррекция по факторам риска (солярий, генетика, фототип кожи)'
+            '<strong style="color:#6C63FF">Training stages:</strong><br>'
+            '1. Transfer learning — EfficientNet-B0 pretrained on ImageNet (14M images)<br>'
+            '2. Fine-tuning on ISIC 2019 + HAM10000 + ISIC 2020 — 31,331 dermoscopic images from clinics in Austria, Australia, Spain, and the US<br>'
+            '3. Multimodal training — age, sex, and lesion location added to the visual features<br>'
+            '4. GPU training (NVIDIA RTX 4070) — 30 epochs, batch size 64, mixed precision (AMP)<br>'
+            '5. Threshold tuning — tuning the melanoma sensitivity threshold (priority: never miss a dangerous diagnosis)<br>'
+            '6. Questionnaire-based post-processing — additional adjustment by risk factors (tanning bed, genetics, skin phototype)'
             '</div>'
             '</div>',
             unsafe_allow_html=True,
@@ -1199,17 +1200,17 @@ def main():
         st.markdown(
             '<div class="glass-card">'
             '<div style="color:#ccd6f6;line-height:1.8">'
-            'Анкета рассчитывает <strong>профиль риска</strong> на основе клинических данных:<br><br>'
-            '<strong style="color:#FF6B6B">Факторы риска меланомы:</strong><br>'
-            '• Солярий регулярно → x1.6 &nbsp; • Меланома у родственников → x1.8<br>'
-            '• 50+ родинок → x1.5 &nbsp; • Светлая кожа (I тип) → x1.5<br>'
-            '• Быстрое изменение образования → x1.6 &nbsp; • 5+ ожогов → x1.5<br><br>'
-            '<strong style="color:#FFA500">Факторы риска баз. карциномы:</strong><br>'
-            '• Локализация на лице/носу/ушах → x1.4<br>'
-            '• Хроническое солнечное воздействие → x1.4<br>'
-            '• Светлая кожа, возраст 60+ → x1.5<br><br>'
-            'Множители корректируют вероятности модели и <strong>снижают порог '
-            'чувствительности к меланоме</strong> для пациентов из группы риска.'
+            'The questionnaire computes a <strong>risk profile</strong> from clinical data:<br><br>'
+            '<strong style="color:#FF6B6B">Melanoma risk factors:</strong><br>'
+            '• Regular tanning bed use → x1.6 &nbsp; • Melanoma in relatives → x1.8<br>'
+            '• 50+ moles → x1.5 &nbsp; • Fair skin (type I) → x1.5<br>'
+            '• Rapid lesion change → x1.6 &nbsp; • 5+ sunburns → x1.5<br><br>'
+            '<strong style="color:#FFA500">Basal cell carcinoma risk factors:</strong><br>'
+            '• Location on face/nose/ears → x1.4<br>'
+            '• Chronic sun exposure → x1.4<br>'
+            '• Fair skin, age 60+ → x1.5<br><br>'
+            'These multipliers adjust the model\'s probabilities and <strong>lower the '
+            'melanoma sensitivity threshold</strong> for high-risk patients.'
             '</div>'
             '</div>',
             unsafe_allow_html=True,
@@ -1220,28 +1221,28 @@ def main():
             '<div class="glass-card">'
 
             '<div style="color:#6C63FF;font-size:1.1rem;font-weight:700;margin-bottom:1rem">'
-            'Технологический стек проекта</div>'
+            'Project tech stack</div>'
 
             '<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">'
 
-            # Язык и ML-фреймворк
+            # Language and ML framework
             '<div>'
-            '<div style="color:#6C63FF;font-weight:600;margin-bottom:0.5rem">🐍 Язык и ML-фреймворк</div>'
+            '<div style="color:#6C63FF;font-weight:600;margin-bottom:0.5rem">🐍 Language & ML framework</div>'
             '<div style="color:#ccd6f6;line-height:1.8;font-size:0.9rem">'
-            '<strong>Python 3</strong> — основной язык проекта<br>'
-            '<strong>PyTorch</strong> — обучение нейросети, inference<br>'
-            '<strong>torchvision</strong> — EfficientNet-B0, аугментации, transforms<br>'
-            '<strong>CUDA + AMP</strong> — GPU-ускорение и mixed precision на RTX 4070'
+            '<strong>Python 3</strong> — main project language<br>'
+            '<strong>PyTorch</strong> — model training and inference<br>'
+            '<strong>torchvision</strong> — EfficientNet-B0, augmentations, transforms<br>'
+            '<strong>CUDA + AMP</strong> — GPU acceleration and mixed precision on RTX 4070'
             '</div>'
             '</div>'
 
-            # Компьютерное зрение
+            # Computer vision
             '<div>'
-            '<div style="color:#6C63FF;font-weight:600;margin-bottom:0.5rem">👁 Компьютерное зрение</div>'
+            '<div style="color:#6C63FF;font-weight:600;margin-bottom:0.5rem">👁 Computer vision</div>'
             '<div style="color:#ccd6f6;line-height:1.8;font-size:0.9rem">'
-            '<strong>EfficientNet-B0</strong> — backbone, transfer learning с ImageNet<br>'
-            '<strong>Grad-CAM</strong> — визуализация областей внимания модели<br>'
-            '<strong>Pillow (PIL)</strong> — загрузка и обработка изображений<br>'
+            '<strong>EfficientNet-B0</strong> — backbone, transfer learning from ImageNet<br>'
+            '<strong>Grad-CAM</strong> — visualization of the model\'s attention regions<br>'
+            '<strong>Pillow (PIL)</strong> — image loading and processing<br>'
             '<strong>Data Augmentation</strong> — flip, rotation, color jitter, affine'
             '</div>'
             '</div>'
@@ -1250,41 +1251,41 @@ def main():
             '<div>'
             '<div style="color:#6C63FF;font-weight:600;margin-bottom:0.5rem">📊 Data Science</div>'
             '<div style="color:#ccd6f6;line-height:1.8;font-size:0.9rem">'
-            '<strong>Pandas</strong> — обработка метаданных пациентов, EDA<br>'
-            '<strong>NumPy</strong> — числовые операции, threshold tuning<br>'
+            '<strong>Pandas</strong> — patient metadata processing, EDA<br>'
+            '<strong>NumPy</strong> — numerical operations, threshold tuning<br>'
             '<strong>scikit-learn</strong> — train/test split, classification report, '
             'confusion matrix, ROC-AUC, label binarization'
             '</div>'
             '</div>'
 
-            # Визуализация
+            # Visualization
             '<div>'
-            '<div style="color:#6C63FF;font-weight:600;margin-bottom:0.5rem">📈 Визуализация</div>'
+            '<div style="color:#6C63FF;font-weight:600;margin-bottom:0.5rem">📈 Visualization</div>'
             '<div style="color:#ccd6f6;line-height:1.8;font-size:0.9rem">'
-            '<strong>Matplotlib</strong> — графики обучения, confusion matrix<br>'
-            '<strong>Seaborn</strong> — EDA: распределения, корреляции, heatmaps<br>'
-            '<strong>Streamlit</strong> — интерактивное веб-приложение'
+            '<strong>Matplotlib</strong> — training curves, confusion matrix<br>'
+            '<strong>Seaborn</strong> — EDA: distributions, correlations, heatmaps<br>'
+            '<strong>Streamlit</strong> — interactive web application'
             '</div>'
             '</div>'
 
-            # Деплой и инфраструктура
+            # Deployment and infrastructure
             '<div>'
-            '<div style="color:#6C63FF;font-weight:600;margin-bottom:0.5rem">🚀 Деплой и инфраструктура</div>'
+            '<div style="color:#6C63FF;font-weight:600;margin-bottom:0.5rem">🚀 Deployment & infrastructure</div>'
             '<div style="color:#ccd6f6;line-height:1.8;font-size:0.9rem">'
-            '<strong>Streamlit Cloud / HuggingFace Spaces</strong> — хостинг приложения<br>'
-            '<strong>NVIDIA RTX 4070</strong> — обучение модели (30 эпох, ~75 мин)<br>'
-            '<strong>SSH</strong> — удалённый запуск обучения на GPU-сервере'
+            '<strong>Streamlit Cloud / HuggingFace Spaces</strong> — app hosting<br>'
+            '<strong>NVIDIA RTX 4070</strong> — model training (30 epochs, ~75 min)<br>'
+            '<strong>SSH</strong> — remote training on the GPU server'
             '</div>'
             '</div>'
 
-            # Методология
+            # Methodology
             '<div>'
-            '<div style="color:#6C63FF;font-weight:600;margin-bottom:0.5rem">🧬 Методология</div>'
+            '<div style="color:#6C63FF;font-weight:600;margin-bottom:0.5rem">🧬 Methodology</div>'
             '<div style="color:#ccd6f6;line-height:1.8;font-size:0.9rem">'
-            '<strong>Transfer Learning</strong> — дообучение предобученной сети<br>'
-            '<strong>Multimodal Learning</strong> — изображение + метаданные<br>'
-            '<strong>Threshold Tuning</strong> — оптимизация порога для меланомы<br>'
-            '<strong>WeightedRandomSampler</strong> — балансировка классов'
+            '<strong>Transfer Learning</strong> — fine-tuning a pretrained network<br>'
+            '<strong>Multimodal Learning</strong> — image + metadata<br>'
+            '<strong>Threshold Tuning</strong> — melanoma threshold optimization<br>'
+            '<strong>WeightedRandomSampler</strong> — class balancing'
             '</div>'
             '</div>'
 
@@ -1297,9 +1298,9 @@ def main():
     st.markdown(
         '<div style="text-align:center;padding:2rem 0 1rem;color:#5a6178;font-size:0.8rem">'
         'DK DermInsights v1.0 &nbsp;|&nbsp; '
-        'Дарья Хотулева &nbsp;|&nbsp; '
-        'Врач-дерматолог &amp; Data Scientist &nbsp;|&nbsp; '
-        'Не является медицинским устройством'
+        'Daria Khotuleva &nbsp;|&nbsp; '
+        'Dermatologist &amp; Data Scientist &nbsp;|&nbsp; '
+        'Not a medical device'
         '</div>',
         unsafe_allow_html=True,
     )
